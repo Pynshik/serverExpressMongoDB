@@ -1,24 +1,8 @@
 const fs = require('fs');
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const User = require('../connection.mongoose/connection.mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
-
-const userScheme = new Schema({
-    login: { type: String },
-    password: { type: String },
-    name: { type: String },
-    age: { type: Number },
-    avatar: { type: String }
-})
-
-const User = mongoose.model("User", userScheme);
-
-mongoose.connect('mongodb://localhost/users',  {useFindAndModify: false , useNewUrlParser: true })
-    .then(() =>  console.log('connection succesful'))
-    .catch((err) => console.error(err));
 
 class DBusersService {
     login = async (user) => {
