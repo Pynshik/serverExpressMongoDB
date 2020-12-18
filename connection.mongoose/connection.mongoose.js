@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const photoScheme = require('../models-mongoose/photoScheme.mongoose');
 const userScheme = require('../models-mongoose/userScheme.mongoose');
+const mongoose = require('mongoose');
 
-const User = mongoose.model("User", userScheme);
+const conn = mongoose.createConnection('mongodb://localhost/users',  {useFindAndModify: false , useNewUrlParser: true });
+const User = conn.model("User", userScheme);
 
-mongoose.connect('mongodb://localhost/users',  {useFindAndModify: false , useNewUrlParser: true })
-    .then(() =>  console.log('connection succesful'))
-    .catch((err) => console.error(err));
+const conn2 = mongoose.createConnection('mongodb://localhost/photos',  {useFindAndModify: false , useNewUrlParser: true });
+const Photo = conn2.model("Photo", photoScheme);
 
-module.exports = User;
+module.exports = {User, Photo};

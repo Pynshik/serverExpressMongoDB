@@ -14,7 +14,7 @@ class UsersController{
     }
 
     getAll = async (req, res) => {
-        const users = await this.service.getAllUsers();
+        const users = await this.service.getAllUsers(req.query);
         res.status(200).send({
             users: users,
             login: req.login
