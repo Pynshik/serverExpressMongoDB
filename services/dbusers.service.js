@@ -39,34 +39,37 @@ class DBusersService {
 
     getAllUsers = async (obj) => {
         try {
-            const options = {
-                populate: { path: 'photos', select: 'name filepath', model: Photo },
-                page: +obj.page,
-                limit: +obj.count
-            }
-
-            let result = await User.paginate({}, options, (err, data) => {
-                if (err) throw new Error('No data');
-                return data;
-            })
-
-            let info = result.docs.map(user => {
-                let photos = user.photos;
-                let userProps = Object.keys(user.toJSON())
-                let userInfo = {};
-                userProps.forEach(prop => {
-                    if (prop != 'photos') {
-                        userInfo[prop] = user[prop];
+            const count = +obj.count;
+            const skip = (+obj.page - 1) * count;
+            let result = await User.aggregate([ 
+                { $skip:  skip },
+                { $limit: count },
+                { $lookup: {
+                    from: 'photos',
+                    localField: 'photos',
+                    foreignField: '_id',
+                    as: 'photosInfo'
                     }
-                })
-                return {
-                    photosInfo: photos,
-                    userInfo
+                },
+                { $project: {
+                    _id: 0,
+                    photosInfo: '$photos',
+                    userInfo:{
+                        id: '$_id', 
+                        login: '$login',
+                        password: '$password',
+                        name: '$name',
+                        age: '$age',
+                        avatar: '$avatar'
+                            }}
                 }
-            })
-            result.docs = info;
-
-            return result;
+            ]);
+            return {
+                content: result,
+                page: +obj.page,
+                count: count,
+                totalCount: ''
+            };
         } catch (err) {
             console.log(err);
         }
